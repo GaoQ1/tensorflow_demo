@@ -38,7 +38,7 @@ plt.show()
 
 for i in range(1000):
     sess.run(train, feed_dict = {xs: x_data, ys: y_data})
-    if i % 50 == 0:
+    if i % 10 == 0:
         # print(sess.run(loss, feed_dict={xs: x_data, ys: y_data}))
 
         try:
