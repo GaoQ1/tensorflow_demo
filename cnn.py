@@ -17,3 +17,30 @@ def weight_variable(shape):
 
 def bias_variable(shape):
     pass
+
+def conv2d(x, W):
+    pass
+
+def max_pool2x2(x):
+    pass
+
+# define placeholder for inputs to network
+ xs = tf.placeholder(tf.float32, [None, 784])
+ ys = tf.placeholder(tf.float32, [None, 10])
+ keep_prob = tf.placeholder(tf.float32)
+
+ ## conv1 layer
+ ## conv2 layer
+ ## func1 layer
+ ## func2 layer
+
+# the error between prediction and real data
+cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys* tf.log(prediction), reduction_indices=[1]))
+train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(cross_entropy)
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+for i in range(1000):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    
