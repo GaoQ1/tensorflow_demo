@@ -10,3 +10,5 @@ with tf.Session() as sess:
     saver.restore(sess, './temp/demo.ckpt')
     print('weight:', sess.run(W))
     print('biases:', sess.run(b))
+
+# 31
