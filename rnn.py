@@ -11,7 +11,7 @@ batch_size = 128
 
 n_inputs = 28
 n_steps = 28
-n_hidden_unis = 128
+n_hidden_units = 128
 n_classes = 10
 
 # tf Graph input
@@ -21,17 +21,40 @@ y = tf.placeholder(tf.float32, [None, n_classes])
 
 # Define weights
 weights = {
-    'in': tf.Variable(tf.random_normal([n_inputs, n_hidden_unis])),
-    'out': tf.Variable(tf.random_normal([n_hidden_unis, n_classes]))
+    'in': tf.Variable(tf.random_normal([n_inputs, n_hidden_units])),
+    'out': tf.Variable(tf.random_normal([n_hidden_units, n_classes]))
 }
 biases = {
-    'in': tf.Variable(tf.constant(0.1, shape=[n_hidden_unis,])),
+    'in': tf.Variable(tf.constant(0.1, shape=[n_hidden_units,])),
     'out': tf.Variable(tf.constant(0.1, shape=[n_classes,]))
 }
 
 def RNN(X, weights, biases):
+    # hidden layer for input to cell
+    # X(128 batch, 28 steps, 28 inputs)
+    # ==> (128*28, 28 inputs)
+    X = tf.reshape(X, [-1, n_inputs])
+    # X_in ==> (128batch * 28steps, 128hidden)
+    X_in = tf.malmul(X, weights['in']) + biases['in']
+    # X_in ==> (128batch, 28steps, 128hidden)
+    X_in = tf.reshape(X_in, [-1, n_steps, n_hidden_units])
 
-    results = None
+    # cell
+    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units, forget_bias=1.0, state_is_tuple = True)
+    # lstm cell is divided inti two parts(c_state, m_state)
+    _init_state = lstm_cell.zero_state(batch_size, dtype=tf.float32)
+
+    outputs, states = tf.nn.dynamic_rnn(lstm_cell, X_in, initial_state = _init_state, time_major = False)
+
+
+    # hidden layer for output as the final results
+    results = tf.matmul(states[1], weights['out']) + biases['out']
+
+    # # or
+    # # unpack to lst [(batch, outputs)] * steps
+    # outputs = tf.unpack(tf.transpose(outputs, [1,0,2]))
+    # results = tf.matmul(outputs[-1], weights['out']) + biases['out']
+
     return results
 
 
