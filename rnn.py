@@ -35,7 +35,7 @@ def RNN(X, weights, biases):
     # ==> (128*28, 28 inputs)
     X = tf.reshape(X, [-1, n_inputs])
     # X_in ==> (128batch * 28steps, 128hidden)
-    X_in = tf.malmul(X, weights['in']) + biases['in']
+    X_in = tf.matmul(X, weights['in']) + biases['in']
     # X_in ==> (128batch, 28steps, 128hidden)
     X_in = tf.reshape(X_in, [-1, n_steps, n_hidden_units])
 
@@ -48,19 +48,20 @@ def RNN(X, weights, biases):
 
 
     # hidden layer for output as the final results
-    results = tf.matmul(states[1], weights['out']) + biases['out']
 
-    # # or
-    # # unpack to lst [(batch, outputs)] * steps
-    # outputs = tf.unpack(tf.transpose(outputs, [1,0,2]))
-    # results = tf.matmul(outputs[-1], weights['out']) + biases['out']
+    # results = tf.matmul(states[1], weights['out']) + biases['out']
+
+    # or
+    # unpack to lst [(batch, outputs)] * steps
+    outputs = tf.unstack(tf.transpose(outputs, [1,0,2]))
+    results = tf.matmul(outputs[-1], weights['out']) + biases['out']
 
     return results
 
 
 pred = RNN(x, weights, biases)
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
-train_op = tf.train_AdamOptimizer(lr).minimize(cost)
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+train_op = tf.train.AdamOptimizer(lr).minimize(cost)
 
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
